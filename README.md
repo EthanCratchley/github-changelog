@@ -1,2 +1,2 @@
 # github-changelog
-AI Github Changelog
+AI Github Changelog Summarization
