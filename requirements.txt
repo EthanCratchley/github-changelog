@@ -1,0 +1,5 @@
+openai==1.58.1
+PyGithub==2.5.0
+PyGithub==2.5.0
+python-dotenv==1.0.1
+reportlab==4.2.2

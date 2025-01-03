@@ -19,6 +19,19 @@ client = OpenAI(api_key=api_key)
 def summarize_commit(commit_info, summary_type):
     """
     Summarizes a commit based on the chosen summary type without using Markdown styling.
+
+    Args:
+        commit_info (dict): A dictionary containing commit details (SHA, author, date, message, files).
+        summary_type (int): The type of summary to generate:
+                            1 - Technical and Detailed
+                            2 - Brief and Easy to Understand
+                            3 - Brief and Non-Technical
+
+    Returns:
+        str: A plain-text summary of the commit.
+    
+    Raises:
+        Exception: If an error occurs during the API call.
     """
     # Construct the file changes summary
     file_changes = "\n".join([
@@ -71,9 +84,21 @@ def summarize_commit(commit_info, summary_type):
     except Exception as e:
         return f"Error summarizing commit: {e}"
 
+
 def save_summary_as_pdf(summary, sha, file_name=None):
     """
     Saves the summary as a well-formatted PDF with improved design and naming.
+
+    Args:
+        summary (str): The plain-text summary of the commit.
+        sha (str): The commit SHA (used for naming the file).
+        file_name (str, optional): The desired file name for the PDF. Defaults to "commit_<sha>.pdf".
+
+    Returns:
+        None
+    
+    Raises:
+        Exception: If an error occurs during PDF generation.
     """
     try:
         # Default file name based on the first 5 digits of the SHA
