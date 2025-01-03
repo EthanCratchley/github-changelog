@@ -1,6 +1,7 @@
 from openai import OpenAI
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib import colors
 import os
 from dotenv import load_dotenv
 import textwrap
@@ -70,36 +71,51 @@ def summarize_commit(commit_info, summary_type):
     except Exception as e:
         return f"Error summarizing commit: {e}"
 
-def save_summary_as_pdf(summary, file_name="commit_summary.pdf"):
+def save_summary_as_pdf(summary, sha, file_name=None):
     """
-    Saves the summary as a plain text PDF with proper line wrapping and formatting.
+    Saves the summary as a well-formatted PDF with improved design and naming.
     """
     try:
+        # Default file name based on the first 5 digits of the SHA
+        if file_name is None:
+            file_name = f"commit_{sha[:5]}.pdf"
+
         # Initialize the PDF canvas
         c = canvas.Canvas(file_name, pagesize=letter)
-        c.setFont("Helvetica", 10)
         width, height = letter
         margin = 50
         y = height - margin
-        line_height = 12
+        line_height = 14
 
-        # Wrap text to fit the page width
-        wrapper = textwrap.TextWrapper(width=90)  # Adjust width for line length
-        wrapped_lines = []
-        for line in summary.split("\n"):
-            wrapped_lines.extend(wrapper.wrap(line))
+        # Define a text wrapper for wrapping lines
+        wrapper = textwrap.TextWrapper(width=80)
 
-        # Write each line to the PDF
-        for line in wrapped_lines:
-            if y <= margin:  # Start a new page if needed
-                c.showPage()
-                c.setFont("Helvetica", 10)
-                y = height - margin
-            c.drawString(margin, y, line)
-            y -= line_height
+        # Add Title
+        c.setFont("Helvetica-Bold", 14)
+        c.setFillColor(colors.black)
+        c.drawString(margin, y, f"Commit Summary - {sha[:5]}")
+        y -= 20
+
+        # Write Summary Content
+        c.setFont("Helvetica", 10)
+
+        # Split the summary into sections by double newlines
+        sections = summary.split("\n\n")
+        for section in sections:
+            # Wrap the lines to fit the page width
+            wrapped_lines = wrapper.wrap(section)
+            for line in wrapped_lines:
+                if y <= margin:  # Start a new page if needed
+                    c.showPage()
+                    c.setFont("Helvetica", 10)
+                    y = height - margin
+                c.drawString(margin, y, line)
+                y -= line_height
+
+            # Add spacing between sections
+            y -= 10
 
         c.save()
         print(f"Summary saved as PDF: {file_name}")
     except Exception as e:
         print(f"Error saving PDF: {e}")
-
