@@ -2,6 +2,16 @@ from github import Github
 import os
 
 def fetch_commit_data(repo_name, num_commits):
+    """
+    Fetch commit data from a given GitHub repository.
+    
+    Args:
+        repo_name (str): The GitHub repository in the format "username/repo".
+        num_commits (int): The number of commits to fetch.
+
+    Returns:
+        list: A list of dictionaries containing commit information.
+    """
     # Authenticate using access token
     access_token = os.getenv('ACCESS_TOKEN')
     if not access_token:
@@ -27,19 +37,18 @@ def fetch_commit_data(repo_name, num_commits):
 
         commit_info = {
             "sha": commit.sha,
-            "message": commit.commit.message,
+            "message": commit.commit.message or "No message provided",
             "author": author_name,
             "date": commit_date,
-            "url": commit.html_url,
             "files": []
         }
 
         # Process file changes for each commit
-        for file in (commit.files or []):  # Ensure files is iterable even if it's None
+        for file in (commit.files or []):
             file_info = {
-                "filename": file.filename,
-                "status": file.status,  # e.g., added, modified, removed
-                "patch": getattr(file, 'patch', "No patch available")  # Safely access patch attribute
+                "filename": getattr(file, 'filename', "Unknown"),
+                "status": getattr(file, 'status', "Unknown"),
+                "patch": getattr(file, 'patch', "No patch available")
             }
             commit_info["files"].append(file_info)
 
